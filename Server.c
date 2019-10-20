@@ -11,7 +11,7 @@ int main(int argc, char const *argv[])
 {
     int fdSocket, res;
 
-    fdSocket = socket(PF_INET, SOCK_STREAM, 0);
+    fdSocket = socket(AF_INET, SOCK_STREAM, 0);
     if(fdSocket < 0) {
         perror("Errore creazione socket stream.");
         exit(1);
@@ -47,18 +47,16 @@ int main(int argc, char const *argv[])
         perror("Errore instaurazione connessione stream server.");
         exit(1);
     } else {
-        printf("SERVER: Accettata connessione con il client!");
+        printf("SERVER: Accettata connessione con il client!\n");
         
         char msgClient[256];
-        int m = read(fdConnect, msgClient, 256);
-        printf("SERVER: Ho ricevuto dal client %d byte!\n", m);
 
-        printf("SERVER: ricevuto dal client\n%s\n", msgClient);
-
-        char *msgServer = "Sono qua per servirti, addio!";
-        int n = write(fdConnect, msgServer, sizeof(msgServer));
-        printf("CLIENT: Ho inviato al server %d byte!\n", n);
-
+        while (read(fdConnect, msgClient, sizeof(msgClient)) > 0) {
+            printf("SERVER: ricevuto messaggio --> %s\n", msgClient);
+            write(fdConnect, msgClient, sizeof(msgClient));
+            bzero(msgClient, sizeof(msgClient));
+        }
+        
     }
     close(fdConnect);
     close(fdSocket);
